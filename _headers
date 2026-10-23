@@ -1,10 +1,8 @@
-# Cloudflare Pages response headers (HOM-864).
+# Cloudflare response headers for the Worker's static assets (HOM-864).
 #
 # This file is the reason for moving off GitHub Pages: GitHub Pages cannot set
 # response headers at all, so on that host the site's privacy claim was asserted
 # and unenforced. Here it is enforced by the browser.
-#
-# Inert on GitHub Pages — safe to land before the cutover.
 
 /*
   # Nothing is allowed by default. Both pages are fully static and contain

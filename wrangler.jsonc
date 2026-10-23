@@ -12,12 +12,10 @@
   "name": "basketvitality-website",
   "compatibility_date": "2026-09-07",
   "assets": {
-    // Served from the repo root on purpose. The obvious tidier alternative —
-    // moving the site into ./public — would break GitHub Pages, which serves
-    // from the root and is still the LIVE host until the DNS cutover. Keeping
-    // the layout means both hosts can serve the same tree, so the switch is
-    // reversible: if anything goes wrong, point DNS back and nothing else has
-    // to change.
+    // Served from the repo root. That kept GitHub Pages and this Worker able to
+    // serve the same tree during the DNS cutover. The cutover is done and the
+    // Pages CNAME file is gone (HOM-1672). Because the root is also the repo,
+    // .assetsignore keeps non-site files such as this one from being served.
     "directory": "."
   }
 }
