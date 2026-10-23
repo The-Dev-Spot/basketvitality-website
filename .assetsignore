@@ -1,0 +1,6 @@
+# assets.directory is the repo root (wrangler.jsonc), so list everything here
+# that isn't part of the site. Never list _headers: Cloudflare reads it to set
+# the security headers.
+.git
+.assetsignore
+wrangler.jsonc
