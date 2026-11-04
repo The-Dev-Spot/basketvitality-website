@@ -103,7 +103,7 @@
 
   <div class="lede">
     <p>Basket Vitality reads your receipts and bank statements on your phone, and keeps them there. We don't have a server that stores your data, we don't have accounts, and we can't see your spending, your shopping, or your health information. We run no analytics, telemetry or tracking, and we receive nothing about you or how you use the app. If the app ever crashes, a report is saved on your phone — and goes nowhere unless you choose to share it.</p>
-    <p>For the app's own features, the only things that leave your phone are anonymous lookups to Open Food Facts — the barcode you scan, and a product's photo and details if you open them — plus a periodic update of the product database. Nothing that identifies you goes with any of them. Google Play handles installs, subscriptions, ratings and updates under Google's own terms.</p>
+    <p>For the app's own features, the only things that leave your phone are anonymous lookups to Open Food Facts — the barcode you scan, and a product's photo and details if you open them. Nothing that identifies you goes with any of them. Google Play handles installs, subscriptions, ratings and updates under Google's own terms.</p>
     <p>If that's all you wanted to know, you're done. The rest is detail.</p>
   </div>
 
@@ -126,16 +126,16 @@
   <p>We never receive any of this. There is no account to sign into, no sync, and no backup we hold.</p>
 
   <h2>What leaves your phone</h2>
-  <p>For the app's own features, two things, and only two. Google Play and Google's libraries are covered further down.</p>
+  <p>For the app's own features, one thing. Google Play and Google's libraries are covered further down.</p>
 
-  <h3>1. Product lookups (Open Food Facts)</h3>
+  <h3>Product lookups (Open Food Facts)</h3>
   <p>When a product isn't in the database bundled with the app, you can tap Look up online, and only then do we ask <a href="https://world.openfoodfacts.org">Open Food Facts</a> about it. The request contains <strong>only the product's barcode</strong> — a number identifying the product, not you. It carries no device identifier, no account, no location, and nothing about your basket, your budget or your other items.</p>
   <p>Open Food Facts is an independent open database. Their servers will see the request, including the IP address your phone connects from, as any web request would. We do not send them anything else, and we do not receive anything about you from them.</p>
   <p>The request identifies the app in its User-Agent header so Open Food Facts can see which application is calling — this is their published etiquette for API users, not a tracking mechanism.</p>
   <p>If you open a scanned product's detail, its <strong>photo, ingredients and additive list</strong> are fetched from Open Food Facts in the same way — again keyed only by the product, never by you, and only for a product you chose to look up. Nothing about your visit is recorded beyond the ordinary web-server log of the request.</p>
 
-  <h3>2. Product database updates</h3>
-  <p>The app periodically downloads an updated bundle of product and nutrition data. This is a plain download — a file comes to your phone. Nothing about you is sent in order to fetch it.</p>
+  <h3>The product database</h3>
+  <p>The product and nutrition database ships inside the app and is updated when the app updates through Google Play. The app doesn't download it separately.</p>
 
   <h3>Analytics, telemetry and Google</h3>
   <p>We run <strong>no analytics</strong>, <strong>no advertising</strong>, <strong>no tracking</strong> and <strong>no telemetry</strong>, and we receive nothing about how you use the app.</p>
@@ -150,7 +150,7 @@
       <thead><tr><th>Permission</th><th>Why</th></tr></thead>
       <tbody>
         <tr><td><strong>Camera</strong></td><td>To photograph receipts and scan barcodes. Images are processed on the device and stored encrypted; they are never uploaded.</td></tr>
-        <tr><td><strong>Internet</strong></td><td>Only for the two flows above — product lookups and database updates.</td></tr>
+        <tr><td><strong>Internet</strong></td><td>Only for the product lookups above.</td></tr>
         <tr><td><strong>Biometrics / Fingerprint</strong></td><td>To unlock the app, if you choose to enable it. Your fingerprint or face never leaves the Android system; the app only receives a yes/no.</td></tr>
       </tbody>
     </table>
