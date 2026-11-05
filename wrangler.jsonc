@@ -1,21 +1,40 @@
 {
-  // Cloudflare Workers static-assets config (HOM-864).
+  // Cloudflare Workers config (HOM-864, HOM-2027).
   //
-  // Chosen over the Pages workflow because Cloudflare's own dashboard now
-  // labels Pages "legacy" and steers new projects here. Both serve the same
-  // files from the same edge and both read `_headers`; this one is the path
-  // that still gets developed, so it avoids a migration later.
-  //
-  // There is no `main` and no build step. This Worker serves static assets and
-  // nothing else — the site is hand-written HTML with zero scripts, which is
-  // also what lets `_headers` set `default-src 'none'`.
+  // Static assets are served directly and never reach Worker code. Only /api/*
+  // runs the Worker, for the checker's "Search online" button. Everything is
+  // still hand-written or generated and committed, so there is no build step.
   "name": "basketvitality-website",
+  "main": "worker/index.js",
   "compatibility_date": "2026-09-07",
   "assets": {
-    // Served from the repo root. That kept GitHub Pages and this Worker able to
-    // serve the same tree during the DNS cutover. The cutover is done and the
-    // Pages CNAME file is gone (HOM-1672). Because the root is also the repo,
-    // .assetsignore keeps non-site files such as this one from being served.
-    "directory": "."
+    // Served from the repo root. .assetsignore keeps non-site files such as this
+    // one, the Worker source and the scripts from being served.
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  // No Worker logs or traces. The Worker handles search text, and the policy
+  // says we don't log it.
+  "observability": { "enabled": false },
+  "ratelimits": [
+    {
+      // Open Food Facts allows 10 searches a minute per IP, and every visitor
+      // shares this Worker. The cap is approximate and per Cloudflare location.
+      "name": "OFF_SEARCH_LIMIT",
+      "namespace_id": "2027",
+      "simple": { "limit": 8, "period": 60 }
+    }
+  ],
+  // Branch previews (`wrangler preview`) keep their own counter, so testing a
+  // branch can't use up the live site's searches.
+  "previews": {
+    "ratelimits": [
+      {
+        "name": "OFF_SEARCH_LIMIT",
+        "namespace_id": "2028",
+        "simple": { "limit": 8, "period": 60 }
+      }
+    ]
   }
 }

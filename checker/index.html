@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Free shopping-list checker: Nutri-Scores for your groceries — Basket Vitality</title>
+    <meta name="description" content="Type your shopping list and see the Nutri-Score of each product. Free, no account, and your list stays in your browser.">
+    <link rel="canonical" href="https://basketvitality.com/checker/">
+    <link rel="alternate" hreflang="en" href="https://basketvitality.com/checker/">
+    <link rel="alternate" hreflang="nl" href="https://basketvitality.com/nl/lijst-checker/">
+    <link rel="alternate" hreflang="x-default" href="https://basketvitality.com/checker/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Basket Vitality">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:url" content="https://basketvitality.com/checker/">
+    <meta property="og:title" content="Free shopping-list checker: Nutri-Scores for your groceries — Basket Vitality">
+    <meta property="og:description" content="Type your shopping list and see the Nutri-Score of each product. Free, no account, and your list stays in your browser.">
+    <meta property="og:image" content="https://basketvitality.com/og-image.png">
+    <meta property="og:image:alt" content="Basket Vitality">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Free shopping-list checker: Nutri-Scores for your groceries — Basket Vitality">
+    <meta name="twitter:description" content="Type your shopping list and see the Nutri-Score of each product. Free, no account, and your list stays in your browser.">
+    <meta name="twitter:image" content="https://basketvitality.com/og-image.png">
+    <meta name="theme-color" content="#F6F2DE">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="/roadmap.css">
+    <link rel="stylesheet" href="/pages.css">
+    <script type="module" src="/checker.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="wrap">
+      <nav class="primary-nav" aria-label="Main navigation">
+        <a class="wordmark" href="/">Basket <em>Vitality</em></a>
+        <div class="site-links">
+          <a href="/checker/" aria-current="page">List checker</a>
+          <a href="/scores/">Food scores</a>
+          <a href="/receipt-scanning/">Receipt scanning</a>
+          <a href="/roadmap/">Roadmap</a>
+        </div>
+        <div class="langswitch">
+          <a href="/checker/" lang="en" hreflang="en" aria-current="true">EN</a>
+          <a href="/nl/lijst-checker/" lang="nl" hreflang="nl">NL</a>
+        </div>
+      </nav>
+    </header>
+    <main id="main">
+      <div class="wrap hero">
+        <p class="eyebrow">Free shopping-list checker</p>
+        <h1>Check your list <em>before you shop.</em></h1>
+        <p class="lead">Type one product per line to see its Nutri-Score. No account, and your list stays in your browser.</p>
+        
+      </div>
+      <section>
+        <div class="wrap checker">
+          <div class="checker-form">
+            <label for="list">Your shopping list</label>
+            <textarea id="list" rows="9" maxlength="2000" spellcheck="false" autocomplete="off" placeholder="havermout
+halfvolle melk
+pindakaas"></textarea>
+            <div class="checker-actions">
+              <button id="check" type="button">Check my list</button>
+              <button id="example" type="button" data-list="havermout|halfvolle melk|pindakaas|hagelslag|appelsap|kipfilet">Try an example</button>
+            </div>
+            <p class="privacy-note">Your list isn't stored or sent anywhere. <strong>Search online</strong> appears when needed, and only sends the item you tap.</p>
+            <noscript><p class="no-js">This checker needs JavaScript. It runs only on this page, and only from our own site.</p></noscript>
+          </div>
+          <div aria-live="polite">
+            <p id="status"></p>
+            <div id="summary" tabindex="-1" hidden></div>
+            <ul id="results"></ul>
+          </div>
+        </div>
+      </section>
+      <section class="tint">
+        <div class="wrap prose">
+          <h2>How it works</h2>
+          <p>The page downloads a list of 18,966 products with a Nutri-Score, then searches it in your browser. Search by product name, in Dutch, and add a brand to narrow it down.</p>
+          <h3>Why some items show a range</h3>
+          <p>"Chicken fillet" isn't one product. When matching products score differently, the checker shows the range and lets you choose, instead of inventing one score.</p>
+          <h3>What it can't do</h3>
+          <p>It only knows products with a Nutri-Score in our data, and that data comes from volunteers, so some records are wrong or out of date. We warn you when a record's numbers look inconsistent. The pack is always the final word. Read <a href="/methodology/">how the scores work</a>.</p>
+        </div>
+      </section>
+      <section class="tint">
+        <div class="wrap cta">
+          <div>
+            <h2>A list can't tell you what the shop cost. <em>Your receipt can.</em></h2>
+            <p>Scan a grocery receipt to see what it cost against your budget and what it scored. Scanning is free, with no account.</p>
+            <p class="availability">Android · On Google Play in the Netherlands and Belgium.</p>
+          </div>
+          <a class="btn" href="https://play.google.com/store/apps/details?id=com.thedevspot.basketvitality">Get Basket Vitality free</a>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="wrap">
+        <p>Basket Vitality · The Dev Spot</p>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="/">Home</a>
+          <a href="/checker/">List checker</a>
+          <a href="/scores/">Food scores</a>
+          <a href="/receipt-scanning/">Receipt scanning</a>
+          <a href="/methodology/">Methodology</a>
+          <a href="/for-professionals/">For professionals</a>
+          <a href="/roadmap/">Roadmap</a>
+          <a href="/privacy/">Privacy Policy</a>
+        </nav>
+        <p class="legal">Product data © <a href="https://world.openfoodfacts.org">Open Food Facts</a> contributors, Open Database License (ODbL) v1.0. Based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources. Environmental data: AGRIBALYSE® (ADEME), CC-BY 4.0.</p>
+        <p class="legal">Basket Vitality gives you information, not medical or financial advice. Not affiliated with or endorsed by any supermarket or brand. Nutri-Score is a trademark of Santé publique France, which is not affiliated with Basket Vitality.</p>
+        <p class="legal">The Dev Spot · Westerstraat 10 UNIT G4118, 3016 DH Rotterdam, Netherlands<br>Chamber of Commerce (KVK) 42149955 · <a href="mailto:privacy@basketvitality.com">privacy@basketvitality.com</a><br>VAT NL005535532B67<br>Prices shown include VAT. Payment and billing are handled by Google Play.</p>
+        <p class="copyright">© 2026 The Dev Spot.</p>
+      </div>
+    </footer>
+  </body>
+</html>

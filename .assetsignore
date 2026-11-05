@@ -4,3 +4,13 @@
 .git
 .assetsignore
 wrangler.jsonc
+package.json
+scripts
+tests
+worker
+node_modules
+.wrangler
+.dev.vars
+.gitignore
+.github
+SECURITY.md
