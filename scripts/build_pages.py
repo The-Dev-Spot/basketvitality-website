@@ -6,8 +6,11 @@ Usage: build_pages.py SEED.jsonl.gz
 Food-page figures come from the seed the app ships, through food_groups.py.
 Everything else is written here so the shared header and footer stay in one place.
 """
+import datetime
+import html as html_text
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -20,6 +23,10 @@ INDEX_FILE = f"/data/products-nl-{VERSION}.json"
 PLAY = "https://play.google.com/store/apps/details?id=com.thedevspot.basketvitality"
 BASE = "https://basketvitality.com"
 REVIEWED = {"en": "Last reviewed 5 November 2026", "nl": "Laatst nagekeken op 5 november 2026"}
+REVIEWED_ISO = "2026-11-05"
+ORGANIZATION = f"{BASE}/#organization"
+MAX_TITLE = 68
+MAX_DESCRIPTION = 165
 
 PATHS = {
     "checker": ("/checker/", "/nl/lijst-checker/"),
@@ -31,15 +38,18 @@ PATHS = {
     "muesli": ("/scores/muesli/", "/nl/scores/muesli/"),
     "methodology": ("/methodology/", "/nl/methode/"),
     "receipt": ("/receipt-scanning/", "/nl/kassabon-scannen/"),
+    "budget": ("/grocery-budget/", "/nl/boodschappenbudget/"),
     "professionals": ("/for-professionals/", "/nl/voor-professionals/"),
 }
+# Pages that exist but aren't listed in the sitemap.
+HIDDEN = {"notfound": ("/", "/nl/")}
 
 UI = {
     "en": {
         "home": "/", "roadmap": "/roadmap/", "skip": "Skip to content", "nav": "Main navigation",
-        "checker": "List checker", "scores": "Food scores", "receipt": "Receipt scanning",
+        "checker": "List checker", "scores": "Food scores", "receipt": "Receipt scanning", "budget": "Grocery budget",
         "roadmap_label": "Roadmap", "methodology": "Methodology", "professionals": "For professionals",
-        "privacy": "Privacy Policy", "footer": "Footer", "locale": "en_GB",
+        "privacy": "Privacy Policy", "footer": "Footer", "breadcrumb": "Breadcrumb", "locale": "en_GB", "locale_other": "nl_NL",
         "get": "Get Basket Vitality free",
         "availability": "Android · On Google Play in the Netherlands and Belgium.",
         "attribution": 'Product data © <a href="https://world.openfoodfacts.org">Open Food Facts</a> contributors, Open Database License (ODbL) v1.0. Based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources. Environmental data: AGRIBALYSE® (ADEME), CC-BY 4.0.',
@@ -48,9 +58,9 @@ UI = {
     },
     "nl": {
         "home": "/nl/", "roadmap": "/nl/roadmap/", "skip": "Naar de inhoud", "nav": "Hoofdnavigatie",
-        "checker": "Lijst-checker", "scores": "Voedingsscores", "receipt": "Kassabon scannen",
+        "checker": "Lijst-checker", "scores": "Voedingsscores", "receipt": "Kassabon scannen", "budget": "Boodschappenbudget",
         "roadmap_label": "Roadmap", "methodology": "Methode", "professionals": "Voor professionals",
-        "privacy": "Privacybeleid", "footer": "Voettekst", "locale": "nl_NL",
+        "privacy": "Privacybeleid", "footer": "Voettekst", "breadcrumb": "Kruimelpad", "locale": "nl_NL", "locale_other": "en_GB",
         "get": "Download Basket Vitality gratis",
         "availability": "Android · Op Google Play in Nederland en België.",
         "attribution": 'Productgegevens © <a href="https://world.openfoodfacts.org">Open Food Facts</a>-bijdragers, Open Database License (ODbL) v1.0. Based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources. Milieugegevens: AGRIBALYSE® (ADEME), CC-BY 4.0.',
@@ -77,14 +87,64 @@ def decimal(value, lang):
 
 
 def path(key, lang):
-    return PATHS[key][0 if lang == "en" else 1]
+    return {**PATHS, **HIDDEN}[key][0 if lang == "en" else 1]
 
 
-def page(key, lang, title, description, body, scripted=False):
+def plain(markup):
+    """Visible text of a snippet, for structured data."""
+    return html_text.unescape(re.sub(r"<[^>]+>", "", markup))
+
+
+def structured_data(items):
+    """JSON-LD blocks. They are data, so the page's CSP doesn't treat them as script."""
+    blocks = []
+    for item in items:
+        data = json.dumps({"@context": "https://schema.org", **item}, ensure_ascii=False, indent=2).replace("</", "<\\/")
+        blocks.append(f'\n    <script type="application/ld+json">\n{data}\n    </script>')
+    return "".join(blocks)
+
+
+def trail(key, lang, label):
+    """Breadcrumb steps from home to this page, as (name, path or None for the current page)."""
+    steps = [("Home", UI[lang]["home"])]
+    if key in GROUPS:
+        steps.append((UI[lang]["scores"], path("scores", lang)))
+    steps.append((label, None))
+    return steps
+
+
+def breadcrumbs(key, lang, label):
+    items = "".join(
+        f'<li aria-current="page">{name}</li>' if url is None else f'<li><a href="{url}">{name}</a></li>'
+        for name, url in trail(key, lang, label))
+    return f'      <nav class="wrap breadcrumbs" aria-label="{UI[lang]["breadcrumb"]}"><ol>{items}</ol></nav>\n'
+
+
+def breadcrumb_data(key, lang, label):
+    elements = []
+    for position, (name, url) in enumerate(trail(key, lang, label), start=1):
+        elements.append({"@type": "ListItem", "position": position, "name": name, "item": BASE + (url or path(key, lang))})
+    return {"@type": "BreadcrumbList", "itemListElement": elements}
+
+
+def page(key, lang, title, description, body, scripted=False, schema=(), crumb=None, og_type="website", noindex=False):
     ui = UI[lang]
+    assert len(html_text.unescape(title)) <= MAX_TITLE, f"title too long: {title}"
+    assert len(html_text.unescape(description)) <= MAX_DESCRIPTION, f"description too long: {description}"
     canonical, en, nl = BASE + path(key, lang), BASE + path(key, "en"), BASE + path(key, "nl")
     script = '\n    <script type="module" src="/checker.js"></script>' if scripted else ""
     current = lambda k: ' aria-current="page"' if k == key or (k == "scores" and key in GROUPS) else ""
+    if noindex:
+        indexing = '<meta name="robots" content="noindex">'
+        crumb_nav, data = "", ""
+    else:
+        indexing = f"""<link rel="canonical" href="{canonical}">
+    <link rel="alternate" hreflang="en" href="{en}">
+    <link rel="alternate" hreflang="nl" href="{nl}">
+    <link rel="alternate" hreflang="x-default" href="{en}">"""
+        label = crumb or ui[key]
+        crumb_nav = breadcrumbs(key, lang, label)
+        data = structured_data([breadcrumb_data(key, lang, label), *schema])
     return f"""<!doctype html>
 <html lang="{lang}">
   <head>
@@ -92,17 +152,17 @@ def page(key, lang, title, description, body, scripted=False):
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{title}</title>
     <meta name="description" content="{description}">
-    <link rel="canonical" href="{canonical}">
-    <link rel="alternate" hreflang="en" href="{en}">
-    <link rel="alternate" hreflang="nl" href="{nl}">
-    <link rel="alternate" hreflang="x-default" href="{en}">
-    <meta property="og:type" content="website">
+    {indexing}
+    <meta property="og:type" content="{og_type}">
     <meta property="og:site_name" content="Basket Vitality">
     <meta property="og:locale" content="{ui['locale']}">
+    <meta property="og:locale:alternate" content="{ui['locale_other']}">
     <meta property="og:url" content="{canonical}">
     <meta property="og:title" content="{title}">
     <meta property="og:description" content="{description}">
     <meta property="og:image" content="{BASE}/og-image.png">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="500">
     <meta property="og:image:alt" content="Basket Vitality">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{title}">
@@ -112,7 +172,7 @@ def page(key, lang, title, description, body, scripted=False):
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="/roadmap.css">
-    <link rel="stylesheet" href="/pages.css">{script}
+    <link rel="stylesheet" href="/pages.css">{script}{data}
   </head>
   <body>
     <a class="skip-link" href="#main">{ui['skip']}</a>
@@ -132,7 +192,7 @@ def page(key, lang, title, description, body, scripted=False):
       </nav>
     </header>
     <main id="main">
-{body}
+{crumb_nav}{body}
     </main>
     <footer class="footer">
       <div class="wrap">
@@ -142,6 +202,7 @@ def page(key, lang, title, description, body, scripted=False):
           <a href="{path('checker', lang)}">{ui['checker']}</a>
           <a href="{path('scores', lang)}">{ui['scores']}</a>
           <a href="{path('receipt', lang)}">{ui['receipt']}</a>
+          <a href="{path('budget', lang)}">{ui['budget']}</a>
           <a href="{path('methodology', lang)}">{ui['methodology']}</a>
           <a href="{path('professionals', lang)}">{ui['professionals']}</a>
           <a href="{ui['roadmap']}">{ui['roadmap_label']}</a>
@@ -194,8 +255,8 @@ def section(content, tint=False):
 def checker_page(lang, stats):
     count = number(stats["products"], lang)
     if lang == "en":
-        title = "Free shopping-list checker: Nutri-Scores for your groceries — Basket Vitality"
-        description = "Type your shopping list and see the Nutri-Score of each product. Free, no account, and your list stays in your browser."
+        title = "Shopping-list checker: free Nutri-Scores — Basket Vitality"
+        description ="Type your shopping list and see the Nutri-Score of each product. Free, no account, and your list stays in your browser."
         top = hero("Free shopping-list checker", "Check your list <em>before you shop.</em>",
                    "Type one product per line to see its Nutri-Score. No account, and your list stays in your browser.")
         form_copy = dict(label="Your shopping list", placeholder="havermout\nhalfvolle melk\npindakaas", check="Check my list", example="Try an example",
@@ -211,8 +272,8 @@ def checker_page(lang, stats):
         final = cta(lang, "A list can't tell you what the shop cost. <em>Your receipt can.</em>",
                     "Scan a grocery receipt to see what it cost against your budget and what it scored. Scanning is free, with no account.")
     else:
-        title = "Gratis boodschappenlijst-checker: Nutri-Scores voor je boodschappen — Basket Vitality"
-        description = "Typ je boodschappenlijst en zie de Nutri-Score van elk product. Gratis, zonder account, en je lijst blijft in je browser."
+        title = "Boodschappenlijst checken op Nutri-Score — Basket Vitality"
+        description ="Typ je boodschappenlijst en zie de Nutri-Score van elk product. Gratis, zonder account, en je lijst blijft in je browser."
         top = hero("Gratis boodschappenlijst-checker", "Check je lijst <em>voordat je gaat winkelen.</em>",
                    "Typ één product per regel en zie de Nutri-Score. Geen account, en je lijst blijft in je browser.")
         form_copy = dict(label="Je boodschappenlijst", placeholder="havermout\nhalfvolle melk\npindakaas", check="Check mijn lijst", example="Probeer een voorbeeld",
@@ -246,8 +307,21 @@ def checker_page(lang, stats):
           </div>
         </div>
       </section>"""
+    schema = [{
+        "@type": "WebApplication",
+        "name": "Shopping-list checker" if lang == "en" else "Boodschappenlijst-checker",
+        "url": BASE + path("checker", lang),
+        "description": description,
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": lang,
+        "isAccessibleForFree": True,
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
+        "publisher": {"@id": ORGANIZATION},
+    }]
     return page("checker", lang, title, description,
-                "\n".join([top, tool, section(how, tint=True), final]), scripted=True)
+                "\n".join([top, tool, section(how, tint=True), final]), scripted=True, schema=schema)
 
 
 # ---- Food pages ------------------------------------------------------------
@@ -393,14 +467,24 @@ def food_extra(products):
     }
 
 
-def food_page(slug, lang, data, copy):
-    ui = UI[lang]
+def food_page(slug, lang, data, copy, entries):
     eyebrow = "Food scores" if lang == "en" else "Voedingsscores"
     meaning = ("What's typical" if lang == "en" else "Wat is gebruikelijk")
     try_it = (f'<a href="{path("checker", lang)}">Check your own list</a> to see individual products.'
               if lang == "en" else f'<a href="{path("checker", lang)}">Check je eigen lijst</a> om losse producten te zien.')
-    title = f"{copy['title']} — Basket Vitality"
-    description = copy["lead"]
+    branded = f"{copy['title']} — Basket Vitality"
+    title = branded if len(branded) <= 65 else copy["title"]
+    more = (" See the full spread, typical nutrition values and how we counted." if lang == "en"
+            else " Bekijk de hele verdeling, gebruikelijke voedingswaarden en hoe we telden.")
+    description = copy["lead"] + more
+    name = copy["name"][:1].upper() + copy["name"][1:]
+    others = "\n".join(
+        f'            <li><a href="{path(other, lang)}">{other_copy["name"][:1].upper() + other_copy["name"][1:]}</a>: {other_copy["short"]}</li>'
+        for other, other_copy in entries if other != slug)
+    related = (f"""          <h2>{'Compare another food' if lang == 'en' else 'Vergelijk een ander product'}</h2>
+          <ul>
+{others}
+          </ul>""")
     body = f"""{hero(eyebrow, copy['heading'], copy['lead'], f'<p class="reviewed">{REVIEWED[lang]}</p>')}
 {section(score_table(lang, data) + f'''
           <p>{copy['body']}</p>
@@ -408,9 +492,23 @@ def food_page(slug, lang, data, copy):
 {section(f'''          <h2>{meaning}</h2>
 {values(lang, data, copy['unit'])}
 {method_note(lang, copy['excluded'])}''', tint=True)}
+{section(related)}
 {cta(lang, 'One food is the easy part. <em>Your receipt shows the whole shop.</em>' if lang == 'en' else 'Eén product is het makkelijke deel. <em>Je kassabon laat de hele boodschappen zien.</em>',
      'Scan a grocery receipt to see what it cost against your budget and what it scored. Scanning is free, with no account.' if lang == 'en' else 'Scan een kassabon en zie wat het kostte ten opzichte van je budget en hoe het scoorde. Scannen is gratis, zonder account.')}"""
-    return page(slug, lang, title, description, body)
+    schema = [{
+        "@type": "Article",
+        "headline": copy["title"],
+        "description": description,
+        "inLanguage": lang,
+        "url": BASE + path(slug, lang),
+        "mainEntityOfPage": BASE + path(slug, lang),
+        "image": f"{BASE}/og-image.png",
+        "datePublished": REVIEWED_ISO,
+        "dateModified": REVIEWED_ISO,
+        "author": {"@id": ORGANIZATION},
+        "publisher": {"@id": ORGANIZATION},
+    }]
+    return page(slug, lang, title, description, body, schema=schema, crumb=name, og_type="article")
 
 
 def scores_index(lang, entries):
@@ -422,13 +520,13 @@ def scores_index(lang, entries):
                    "Five everyday foods, every product with a Nutri-Score counted. Some foods hardly vary, and some vary a lot.",
                    f'<p class="reviewed">{REVIEWED[lang]}</p>')
         foot = f'Figures come from Open Food Facts data. <a href="{path("methodology", lang)}">See how we count</a>, or <a href="{path("checker", lang)}">check your own list</a>.'
-        title, description = "Food scores: how everyday foods do on Nutri-Score — Basket Vitality", "How hagelslag, milk, oats, peanut butter and muesli score on Nutri-Score, counted across every product with a score."
+        title, description = "Nutri-Scores of everyday foods, counted — Basket Vitality", "How hagelslag, milk, oats, peanut butter and muesli score on Nutri-Score, counted across every product with a score."
     else:
         top = hero("Voedingsscores", "Hoe scoort je ontbijt <em>op Nutri-Score?</em>",
                    "Vijf dagelijkse producten, met elk product met een Nutri-Score meegeteld. Bij sommige is er nauwelijks verschil, bij andere juist veel.",
                    f'<p class="reviewed">{REVIEWED[lang]}</p>')
         foot = f'De cijfers komen uit gegevens van Open Food Facts. <a href="{path("methodology", lang)}">Bekijk hoe we tellen</a>, of <a href="{path("checker", lang)}">check je eigen lijst</a>.'
-        title, description = "Voedingsscores: zo scoren dagelijkse producten op Nutri-Score — Basket Vitality", "Hoe hagelslag, melk, havermout, pindakaas en muesli scoren op Nutri-Score, geteld over alle producten met een score."
+        title, description = "Nutri-Scores van dagelijkse producten — Basket Vitality", "Hoe hagelslag, melk, havermout, pindakaas en muesli scoren op Nutri-Score, geteld over alle producten met een score."
     body = f"""{top}
       <section>
         <div class="wrap">
@@ -510,14 +608,30 @@ def methodology(lang, stats):
           <p>Kassabonnen scannen en scoren gebeurt op je telefoon, en je bonnen verlaten die nooit. Wat wél naar buiten gaat: de productdatabase, productfoto's, anonieme barcodes naar Open Food Facts, en Google Play voor abonnementen en beoordelingen. De checker op de website werkt in je browser. Lees het <a href="/privacy/">privacybeleid</a> (Engels).</p>
           <h2>Geen medische app</h2>
           <p>{DISCLAIMER['nl']}</p>"""
-    return page("methodology", lang, title, description, f"{top}\n{section(content)}")
+    schema = [{
+        "@type": "Dataset",
+        "name": "Basket Vitality checker product list, Netherlands" if lang == "en" else "Productlijst van de Basket Vitality-checker, Nederland",
+        "description": ("Dutch grocery products with a Nutri-Score, derived from Open Food Facts and used by the Basket Vitality shopping-list checker. Available under the Open Database License."
+                        if lang == "en" else "Nederlandse supermarktproducten met een Nutri-Score, afgeleid van Open Food Facts en gebruikt door de boodschappenlijst-checker van Basket Vitality. Beschikbaar onder de Open Database License."),
+        "url": BASE + path("methodology", lang),
+        "inLanguage": lang,
+        "version": VERSION,
+        "license": "https://opendatacommons.org/licenses/odbl/1-0/",
+        "isAccessibleForFree": True,
+        "isBasedOn": "https://world.openfoodfacts.org",
+        "spatialCoverage": {"@type": "Place", "name": "Netherlands"},
+        "creator": {"@type": "Organization", "name": "Open Food Facts contributors", "url": "https://world.openfoodfacts.org"},
+        "publisher": {"@id": ORGANIZATION},
+        "distribution": {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": BASE + INDEX_FILE},
+    }]
+    return page("methodology", lang, title, description, f"{top}\n{section(content)}", schema=schema)
 
 
 # ---- Receipt scanning ------------------------------------------------------
 
 def receipt(lang):
     if lang == "en":
-        title, description = "Scan your grocery receipt: what it cost and how it scored — Basket Vitality", "Scan a grocery receipt on your phone to see your budget, Nutri-Scores and a few useful swaps. How it works, and how it differs from cashback apps."
+        title, description = "Scan your grocery receipt: cost and Nutri-Score — Basket Vitality", "Scan a grocery receipt on your phone to see your budget, Nutri-Scores and a few useful swaps. How it works, and how it differs from cashback apps."
         top = hero("Receipt scanning", "One photo of your receipt. <em>The whole shop, explained.</em>",
                    "Basket Vitality reads your grocery receipt on your phone and shows what it cost against your budget and what it scored on Nutri-Score.",
                    f'<a class="btn" href="{PLAY}">{UI[lang]["get"]}</a><p class="availability">{UI[lang]["availability"]}</p>')
@@ -539,18 +653,16 @@ def receipt(lang):
               <tr><th scope="row">Your receipt</th><td>Check each app's privacy terms</td><td>Stays on your phone, with no account</td></tr>
             </tbody>
           </table></div>"""
-        faq = """          <h2>Common questions</h2>
-          <h3>Is it free?</h3>
-          <p>Receipt and barcode scanning are free and unlimited. Free also includes the top two swaps for each shop, one budget category, the last seven days of history and one bank-statement import. Pro adds every budget category, your full history, every swap and unlimited statement imports, with a 14-day free trial for new subscribers.</p>
-          <h3>Which receipts does it read?</h3>
-          <p>It's built for Dutch supermarket receipts and sold on Google Play in the Netherlands and Belgium.</p>
-          <h3>What if it doesn't recognise a line?</h3>
-          <p>It says so instead of guessing, and you can fix the match yourself. Product data comes from Open Food Facts and RIVM's NEVO table, and neither is complete.</p>
-          <h3>Does my receipt get uploaded?</h3>
-          <p>No. Your receipts stay in an encrypted database on your phone. <a href="/privacy/">Read exactly what does go out</a>.</p>"""
+        faq_heading = "Common questions"
+        questions = [
+            ("Is it free?", "Receipt and barcode scanning are free and unlimited. Free also includes the top two swaps for each shop, one budget category, the last seven days of history and one bank-statement import. Pro adds every budget category, your full history, every swap and unlimited statement imports, with a 14-day free trial for new subscribers."),
+            ("Which receipts does it read?", "It's built for Dutch supermarket receipts and sold on Google Play in the Netherlands and Belgium."),
+            ("What if it doesn't recognise a line?", "It says so instead of guessing, and you can fix the match yourself. Product data comes from Open Food Facts and RIVM's NEVO table, and neither is complete."),
+            ("Does my receipt get uploaded?", 'No. Your receipts stay in an encrypted database on your phone. <a href="/privacy/">Read exactly what does go out</a>.'),
+        ]
         final = cta(lang, "Your shopping already told you this. <em>See it.</em>", "One photo of one receipt is enough to try it.")
     else:
-        title, description = "Kassabon scannen: wat het kostte en hoe het scoorde — Basket Vitality", "Scan je kassabon op je telefoon en zie je budget, Nutri-Scores en een paar nuttige swaps. Hoe het werkt, en het verschil met cashback-apps."
+        title, description = "Kassabon scannen: kosten en Nutri-Score — Basket Vitality", "Scan je kassabon op je telefoon en zie je budget, Nutri-Scores en een paar nuttige swaps. Hoe het werkt, en het verschil met cashback-apps."
         top = hero("Kassabon scannen", "Eén foto van je kassabon. <em>De hele boodschappen uitgelegd.</em>",
                    "Basket Vitality leest je kassabon op je telefoon en laat zien wat het kostte ten opzichte van je budget en hoe het scoorde op Nutri-Score.",
                    f'<a class="btn" href="{PLAY}">{UI[lang]["get"]}</a><p class="availability">{UI[lang]["availability"]}</p>')
@@ -572,17 +684,75 @@ def receipt(lang):
               <tr><th scope="row">Je kassabon</th><td>Bekijk de privacyvoorwaarden per app</td><td>Blijft op je telefoon, zonder account</td></tr>
             </tbody>
           </table></div>"""
-        faq = """          <h2>Veelgestelde vragen</h2>
-          <h3>Is het gratis?</h3>
-          <p>Kassabonnen en barcodes scannen is gratis en onbeperkt. Gratis zijn ook de twee beste swaps per boodschappenronde, één budgetcategorie, de laatste zeven dagen geschiedenis en één import van een bankafschrift. Pro voegt alle budgetcategorieën, je volledige geschiedenis, elke swap en onbeperkt afschriften importeren toe, met 14 dagen gratis proberen voor nieuwe abonnees.</p>
-          <h3>Welke kassabonnen leest de app?</h3>
-          <p>De app is gemaakt voor kassabonnen van Nederlandse supermarkten en te koop op Google Play in Nederland en België.</p>
-          <h3>Wat als de app een regel niet herkent?</h3>
-          <p>Dan zegt de app dat, in plaats van te gokken, en kun je de koppeling zelf verbeteren. Productgegevens komen van Open Food Facts en de NEVO-tabel van het RIVM, en geen van beide is compleet.</p>
-          <h3>Wordt mijn kassabon geüpload?</h3>
-          <p>Nee. Je kassabonnen staan in een versleutelde database op je telefoon. <a href="/privacy/">Lees precies wat er wel naar buiten gaat</a> (Engels).</p>"""
+        faq_heading = "Veelgestelde vragen"
+        questions = [
+            ("Is het gratis?", "Kassabonnen en barcodes scannen is gratis en onbeperkt. Gratis zijn ook de twee beste swaps per boodschappenronde, één budgetcategorie, de laatste zeven dagen geschiedenis en één import van een bankafschrift. Pro voegt alle budgetcategorieën, je volledige geschiedenis, elke swap en onbeperkt afschriften importeren toe, met 14 dagen gratis proberen voor nieuwe abonnees."),
+            ("Welke kassabonnen leest de app?", "De app is gemaakt voor kassabonnen van Nederlandse supermarkten en te koop op Google Play in Nederland en België."),
+            ("Wat als de app een regel niet herkent?", "Dan zegt de app dat, in plaats van te gokken, en kun je de koppeling zelf verbeteren. Productgegevens komen van Open Food Facts en de NEVO-tabel van het RIVM, en geen van beide is compleet."),
+            ("Wordt mijn kassabon geüpload?", 'Nee. Je kassabonnen staan in een versleutelde database op je telefoon. <a href="/privacy/">Lees precies wat er wel naar buiten gaat</a> (Engels).'),
+        ]
         final = cta(lang, "Je boodschappen vertelden je dit al. <em>Bekijk het zelf.</em>", "Eén foto van één kassabon is genoeg om het te proberen.")
-    return page("receipt", lang, title, description, "\n".join([top, section(how), section(compare, tint=True), section(faq), final]))
+    faq = f"          <h2>{faq_heading}</h2>\n" + "\n".join(
+        f"          <h3>{question}</h3>\n          <p>{answer}</p>" for question, answer in questions)
+    schema = [{
+        "@type": "FAQPage",
+        "inLanguage": lang,
+        "mainEntity": [
+            {"@type": "Question", "name": question, "acceptedAnswer": {"@type": "Answer", "text": plain(answer)}}
+            for question, answer in questions],
+    }]
+    return page("receipt", lang, title, description, "\n".join([top, section(how), section(compare, tint=True), section(faq), final]), schema=schema)
+
+
+# ---- Grocery budget --------------------------------------------------------
+
+def budget(lang):
+    ui = UI[lang]
+    if lang == "en":
+        title = "Grocery budget app that reads your receipt — Basket Vitality"
+        description = "Keep a grocery budget without typing every line. Scan a receipt, save it, and it lands in your budget line by line, with warnings before you go over."
+        top = hero("Grocery budget", "A grocery budget <em>that knows what you bought.</em>",
+                   "A bank app sees one amount at the supermarket. Basket Vitality reads the receipt, so your budget sees the crisps, the cola and the rest.",
+                   f'<a class="btn" href="{PLAY}">{ui["get"]}</a><p class="availability">{ui["availability"]}</p>')
+        how = """          <h2>How it works</h2>
+          <ol>
+            <li><strong>Set a monthly budget</strong> for a category.</li>
+            <li><strong>Scan your receipt.</strong> Your phone reads it, with no account and no typing.</li>
+            <li><strong>Save it as a transaction.</strong> It lands in your budget line by line. Crisps go to Snacks, cola to Drinks, shampoo to Personal care and the rest to Groceries. If a line is in the wrong place, one tap moves it.</li>
+            <li><strong>See where you stand:</strong> what you've spent and what's left for the month you're viewing.</li>
+          </ol>"""
+        warnings = f"""          <h2>Warnings before it's too late</h2>
+          <p>The budget bar turns orange once more than 80% is used. If you go over, it turns red and the app says by how much. These warnings appear inside the app. Phone notifications are <a href="{ui['roadmap']}#insights">on the roadmap</a>.</p>
+          <h2>Money and food on the same receipt</h2>
+          <p>Because the app read the receipt, it can also show how much of that spending scored Nutri-D or worse, and which swaps would help. <a href="{path('receipt', lang)}">See how receipt scanning works</a>.</p>"""
+        free = f"""          <h2>What's free</h2>
+          <p>Scanning is free and unlimited, with one budget category. Pro costs €6,99 a month or €49,99 a year, with a 14-day free trial for new subscribers. It gives Snacks, Drinks and any other category a budget of their own, and adds your full history and unlimited bank-statement imports.</p>
+          <h2>What it can't do</h2>
+          <p>It's built for Dutch supermarket receipts and runs on Android. A product it can't place stays under Groceries rather than being guessed into Snacks.</p>"""
+        final = cta(lang, "Your next receipt is <em>your first budget update.</em>", "One photo of one receipt is enough to try it.")
+    else:
+        title = "Boodschappenbudget bijhouden met je kassabon — Basket Vitality"
+        description = "Houd je boodschappenbudget bij zonder elke regel te typen. Scan je kassabon, bewaar hem, en hij landt regel voor regel in je budget, met tijdig een waarschuwing."
+        top = hero("Boodschappenbudget", "Een boodschappenbudget <em>dat weet wat je kocht.</em>",
+                   "Een bank-app ziet één bedrag bij de supermarkt. Basket Vitality leest de kassabon, dus je budget ziet de chips, de cola en de rest.",
+                   f'<a class="btn" href="{PLAY}">{ui["get"]}</a><p class="availability">{ui["availability"]}</p>')
+        how = """          <h2>Zo werkt het</h2>
+          <ol>
+            <li><strong>Stel een maandbudget in</strong> voor een categorie.</li>
+            <li><strong>Scan je kassabon.</strong> Je telefoon leest hem, zonder account en zonder typen.</li>
+            <li><strong>Bewaar hem als transactie.</strong> Hij landt regel voor regel in je budget. Chips gaat naar Snacks, cola naar Dranken, shampoo naar Persoonlijke verzorging en de rest naar Boodschappen. Staat een regel verkeerd, dan verplaats je hem met één tik.</li>
+            <li><strong>Zie waar je staat:</strong> wat je hebt uitgegeven en wat er over is, voor de maand die je bekijkt.</li>
+          </ol>"""
+        warnings = f"""          <h2>Op tijd een waarschuwing</h2>
+          <p>De budgetbalk wordt oranje zodra meer dan 80% is gebruikt. Ga je eroverheen, dan wordt hij rood en zegt de app met hoeveel. Deze waarschuwingen staan in de app. Telefoonmeldingen staan <a href="{ui['roadmap']}#insights">op de roadmap</a>.</p>
+          <h2>Geld en eten op dezelfde kassabon</h2>
+          <p>Omdat de app de bon heeft gelezen, laat hij ook zien hoeveel van die uitgaven Nutri-D of slechter scoorde, en welke swaps zouden helpen. <a href="{path('receipt', lang)}">Bekijk hoe kassabon scannen werkt</a>.</p>"""
+        free = f"""          <h2>Wat is gratis</h2>
+          <p>Scannen is gratis en onbeperkt, met één budgetcategorie. Pro kost €6,99 per maand of €49,99 per jaar, met 14 dagen gratis proberen voor nieuwe abonnees. Daarmee krijgen Snacks, Dranken en elke andere categorie een eigen budget, plus je volledige geschiedenis en onbeperkt bankafschriften importeren.</p>
+          <h2>Wat de app niet kan</h2>
+          <p>De app is gemaakt voor kassabonnen van Nederlandse supermarkten en werkt op Android. Een product dat de app niet kan plaatsen blijft onder Boodschappen staan, in plaats van dat het bij Snacks wordt gegokt.</p>"""
+        final = cta(lang, "Je volgende kassabon is <em>je eerste budgetupdate.</em>", "Eén foto van één kassabon is genoeg om het te proberen.")
+    return page("budget", lang, title, description, "\n".join([top, section(how), section(warnings, tint=True), section(free), final]))
 
 
 # ---- Professionals ---------------------------------------------------------
@@ -591,7 +761,7 @@ def professionals(lang):
     mail_en = "mailto:feedback@basketvitality.com?subject=Basket%20Vitality%20for%20professionals"
     mail_nl = "mailto:feedback@basketvitality.com?subject=Basket%20Vitality%20voor%20professionals"
     if lang == "en":
-        title, description = "For dietitians and coaches: Basket Vitality and your clients", "How dietitians and budget coaches can use Basket Vitality with clients: real grocery receipts, Nutri-Scores and budgets, with data that stays on the client's phone."
+        title, description = "For dietitians and coaches: Basket Vitality and your clients", "How dietitians and budget coaches can use real grocery receipts, Nutri-Scores and budgets with clients, with data that stays on the client's phone."
         top = hero("For dietitians and coaches", "Start from what your client <em>actually bought.</em>",
                    "Basket Vitality turns a grocery receipt into a budget and a Nutri-Score overview on your client's own phone. That gives you something real to talk about.")
         content = f"""          <h2>How it can fit your work</h2>
@@ -612,7 +782,7 @@ def professionals(lang):
           <p>Scanning is free, so you can try it now. If you'd like to use it with clients, or Pro access would help, email us and tell us about your practice. We especially want to hear what's missing.</p>
           <p><a class="btn" href="{mail_en}">Email feedback@basketvitality.com</a></p>"""
     else:
-        title, description = "Voor diëtisten en coaches: Basket Vitality en je cliënten", "Hoe diëtisten en budgetcoaches Basket Vitality met cliënten kunnen gebruiken: echte kassabonnen, Nutri-Scores en budgetten, met gegevens die op de telefoon van de cliënt blijven."
+        title, description = "Voor diëtisten en coaches: Basket Vitality en je cliënten", "Hoe diëtisten en budgetcoaches echte kassabonnen, Nutri-Scores en budgetten met cliënten gebruiken, met gegevens die op de telefoon van de cliënt blijven."
         top = hero("Voor diëtisten en coaches", "Begin bij wat je cliënt <em>echt heeft gekocht.</em>",
                    "Basket Vitality maakt van een kassabon een budget- en Nutri-Score-overzicht op de eigen telefoon van je cliënt. Dan heb je iets echts om over te praten.")
         content = f"""          <h2>Hoe het in je werk past</h2>
@@ -643,16 +813,31 @@ def write(url_path, html):
     target.write_text(html, encoding="utf-8")
 
 
+def not_found(lang):
+    if lang == "en":
+        title, description = "Page not found — Basket Vitality", "This page doesn't exist. Try the shopping-list checker, the food scores or receipt scanning."
+        heading, lead = "This page <em>doesn't exist.</em>", "It may have moved, or the link may be wrong. These pages might help:"
+    else:
+        title, description = "Pagina niet gevonden — Basket Vitality", "Deze pagina bestaat niet. Probeer de boodschappenlijst-checker, de voedingsscores of kassabon scannen."
+        heading, lead = "Deze pagina <em>bestaat niet.</em>", "Misschien is hij verplaatst, of klopt de link niet. Deze pagina's kunnen helpen:"
+    links = "\n".join(f'            <li><a href="{path(key, lang)}">{UI[lang][key]}</a></li>' for key in ("checker", "scores", "receipt", "budget"))
+    body = f'{hero("404", heading, lead)}\n{section(f"          <ul>{chr(10)}{links}{chr(10)}          </ul>")}'
+    return page("notfound", lang, title, description, body, noindex=True)
+
+
+def last_changed(url):
+    """The date this page last changed: today if it has uncommitted changes, else its last commit."""
+    file = str(Path(url.lstrip("/")) / "index.html")
+    git = lambda *args: subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
+    if git("status", "--porcelain", "--", file):
+        return datetime.date.today().isoformat()
+    return git("log", "-1", "--format=%cs", "--", file) or datetime.date.today().isoformat()
+
+
 def write_sitemap():
-    entries = [("/", "monthly", "1.0"), ("/nl/", "monthly", "1.0"), ("/privacy/", "yearly", "0.3"),
-               ("/roadmap/", "monthly", "0.7"), ("/nl/roadmap/", "monthly", "0.7")]
-    priorities = {"checker": "0.9", "receipt": "0.9", "scores": "0.8", "methodology": "0.5", "professionals": "0.5"}
-    for key, pair in PATHS.items():
-        for url in pair:
-            entries.append((url, "monthly", priorities.get(key, "0.7")))
-    body = "\n".join(
-        f"  <url>\n    <loc>{BASE}{url}</loc>\n    <changefreq>{freq}</changefreq>\n    <priority>{priority}</priority>\n  </url>"
-        for url, freq, priority in entries)
+    urls = ["/", "/nl/", "/privacy/", "/roadmap/", "/nl/roadmap/"]
+    urls += [url for pair in PATHS.values() for url in pair]
+    body = "\n".join(f"  <url>\n    <loc>{BASE}{url}</loc>\n    <lastmod>{last_changed(url)}</lastmod>\n  </url>" for url in urls)
     (ROOT / "sitemap.xml").write_text(
         f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{body}\n</urlset>\n', encoding="utf-8")
 
@@ -664,17 +849,20 @@ def main():
              "flag2": sum(1 for row in index if row[5] == 2)}
     for lang in ("en", "nl"):
         write(path("checker", lang), checker_page(lang, stats))
-        entries = []
+        foods = []
         for slug, group in GROUPS.items():
             products = members(graded, group)
             data = figures(products)
-            copy = food_copy(slug, lang, data, food_extra(products))
-            write(path(slug, lang), food_page(slug, lang, data, copy))
-            entries.append((slug, copy))
+            foods.append((slug, data, food_copy(slug, lang, data, food_extra(products))))
+        entries = [(slug, copy) for slug, _, copy in foods]
+        for slug, data, copy in foods:
+            write(path(slug, lang), food_page(slug, lang, data, copy, entries))
         write(path("scores", lang), scores_index(lang, entries))
         write(path("methodology", lang), methodology(lang, stats))
         write(path("receipt", lang), receipt(lang))
+        write(path("budget", lang), budget(lang))
         write(path("professionals", lang), professionals(lang))
+        (ROOT / ("404.html" if lang == "en" else "nl/404.html")).write_text(not_found(lang), encoding="utf-8")
     write_sitemap()
     print(json.dumps(stats))
 

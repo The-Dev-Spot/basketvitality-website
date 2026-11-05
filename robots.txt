@@ -1,5 +1,6 @@
 # basketvitality.com
 User-agent: *
 Allow: /
+Disallow: /api/
 
 Sitemap: https://basketvitality.com/sitemap.xml

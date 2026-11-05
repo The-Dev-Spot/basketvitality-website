@@ -2,127 +2,110 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://basketvitality.com/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/privacy/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/roadmap/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/roadmap/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/checker/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/lijst-checker/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/scores/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/scores/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/scores/hagelslag/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/scores/hagelslag/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/scores/semi-skimmed-milk/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/scores/halfvolle-melk/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/scores/oats/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/scores/havermout/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/scores/peanut-butter/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/scores/pindakaas/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/scores/muesli/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/scores/muesli/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/methodology/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/methode/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/receipt-scanning/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/kassabon-scannen/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2026-11-05</lastmod>
+  </url>
+  <url>
+    <loc>https://basketvitality.com/grocery-budget/</loc>
+    <lastmod>2026-11-05</lastmod>
+  </url>
+  <url>
+    <loc>https://basketvitality.com/nl/boodschappenbudget/</loc>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/for-professionals/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://basketvitality.com/nl/voor-professionals/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2026-11-05</lastmod>
   </url>
 </urlset>
