@@ -43,7 +43,7 @@ UI = {
         "get": "Get Basket Vitality free",
         "availability": "Android · On Google Play in the Netherlands and Belgium.",
         "attribution": 'Product data © <a href="https://world.openfoodfacts.org">Open Food Facts</a> contributors, Open Database License (ODbL) v1.0. Based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources. Environmental data: AGRIBALYSE® (ADEME), CC-BY 4.0.',
-        "advice": "Basket Vitality gives you information, not medical or financial advice. Not affiliated with or endorsed by any supermarket or brand.",
+        "advice": "Basket Vitality gives you information, not medical or financial advice. Not affiliated with or endorsed by any supermarket or brand. Nutri-Score is a trademark of Santé publique France, which is not affiliated with Basket Vitality.",
         "business": 'The Dev Spot · Westerstraat 10 UNIT G4118, 3016 DH Rotterdam, Netherlands<br>Chamber of Commerce (KVK) 42149955 · <a href="mailto:privacy@basketvitality.com">privacy@basketvitality.com</a><br>VAT NL005535532B67<br>Prices shown include VAT. Payment and billing are handled by Google Play.',
     },
     "nl": {
@@ -54,7 +54,7 @@ UI = {
         "get": "Download Basket Vitality gratis",
         "availability": "Android · Op Google Play in Nederland en België.",
         "attribution": 'Productgegevens © <a href="https://world.openfoodfacts.org">Open Food Facts</a>-bijdragers, Open Database License (ODbL) v1.0. Based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources. Milieugegevens: AGRIBALYSE® (ADEME), CC-BY 4.0.',
-        "advice": "Basket Vitality geeft je informatie, geen medisch of financieel advies. Niet verbonden aan of goedgekeurd door een supermarkt of merk.",
+        "advice": "Basket Vitality geeft je informatie, geen medisch of financieel advies. Niet verbonden aan of goedgekeurd door een supermarkt of merk. Nutri-Score is een merk van Santé publique France, dat niet verbonden is aan Basket Vitality.",
         "business": 'The Dev Spot · Westerstraat 10 UNIT G4118, 3016 DH Rotterdam<br>KvK 42149955 · <a href="mailto:privacy@basketvitality.com">privacy@basketvitality.com</a><br>Btw-id NL005535532B67<br>Genoemde prijzen zijn inclusief btw. Betaling en facturatie lopen via Google Play.',
     },
 }
