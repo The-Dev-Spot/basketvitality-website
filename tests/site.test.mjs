@@ -181,3 +181,15 @@ test('no tracker or analytics is loaded for search setup', () => {
     assert.doesNotMatch(read(page), /googletagmanager|google-analytics|gtag\(|fbq\(|clarity\.ms|plausible|cloudflareinsights/i, page);
   }
 });
+
+test('every page has the shared footer with the business details the law requires', () => {
+  for (const page of pages) {
+    const html = read(page);
+    assert.match(html, /<link rel="stylesheet" href="\/footer\.css">/, page);
+    assert.equal((html.match(/<footer class="site-footer">/g) ?? []).length, 1, page);
+    const footer = html.slice(html.indexOf('<footer'));
+    for (const detail of [/Westerstraat 10 UNIT G4118/, /(?:KVK\)|KvK) 42149955/, /NL005535532B67/, /privacy@basketvitality\.com/, /Open Food Facts/]) {
+      assert.match(footer, detail, `${page}: ${detail}`);
+    }
+  }
+});

@@ -379,31 +379,6 @@ main section
 {
   font-size:.9rem
 }
-.footer
-{
-  border-top:1px solid var(--outline);
-  padding:44px 0 60px
-}
-.footer-links
-{
-  display:flex;
-  gap:24px;
-  flex-wrap:wrap;
-  margin:16px 0
-}
-.footer-links a
-{
-  min-height:32px
-}
-.legal,.copyright
-{
-  font-size:.8rem;
-  line-height:1.7
-}
-.legal a
-{
-  color:var(--ink-subtle)
-}
 .skip-link
 {
   position:absolute;

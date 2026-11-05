@@ -73,7 +73,6 @@
 .cta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px 32px}
 .cta p{max-width:58ch;margin:0}
 .cta h2{margin-bottom:10px}
-.footer .legal{margin:8px 0}
 
 @media (max-width:760px){
   .checker{grid-template-columns:minmax(0,1fr);gap:28px}
