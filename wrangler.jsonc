@@ -25,5 +25,16 @@
       "namespace_id": "2027",
       "simple": { "limit": 8, "period": 60 }
     }
-  ]
+  ],
+  // Branch previews (`wrangler preview`) keep their own counter, so testing a
+  // branch can't use up the live site's searches.
+  "previews": {
+    "ratelimits": [
+      {
+        "name": "OFF_SEARCH_LIMIT",
+        "namespace_id": "2028",
+        "simple": { "limit": 8, "period": 60 }
+      }
+    ]
+  }
 }
