@@ -473,7 +473,7 @@ def methodology(lang, stats):
             <li><strong>NEVO:</strong> based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources.</li>
             <li><strong>AGRIBALYSE:</strong> environmental data, AGRIBALYSE® (ADEME), CC-BY 4.0.</li>
           </ul>
-          <p>The checker's product list is available under the same licence: <a href="{INDEX_FILE}">download the data</a> (JSON), read the <a href="/data/LICENSE.txt">licence notice</a>, or see the <a href="https://github.com/The-Dev-Spot/basketvitality-website/blob/main/scripts/build_index.py">script that builds it</a>.</p>
+          <p>The checker's product list is available under the same licence: <a href="{INDEX_FILE}">download the data</a> (JSON), read the <a href="/data/LICENSE.txt">licence notice</a>, or see the <a href="https://github.com/The-Dev-Spot/basketvitality-website/blob/main/scripts/build_index.py">script that builds it</a>. The app's full product database and the script that cuts it are in our <a href="https://github.com/The-Dev-Spot/basketvitality-seed">public seed repository</a>.</p>
           <h2>Privacy</h2>
           <p>Receipt scanning and scoring happen on your phone, and your receipts never leave it. What does go out: the product-database download, product pictures, an anonymous barcode lookup to Open Food Facts, and Google Play for subscriptions and ratings. The website's checker works in your browser. Read the <a href="/privacy/">privacy policy</a>.</p>
           <h2>Not a medical app</h2>
@@ -505,7 +505,7 @@ def methodology(lang, stats):
             <li><strong>NEVO:</strong> based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources.</li>
             <li><strong>AGRIBALYSE:</strong> milieugegevens, AGRIBALYSE® (ADEME), CC-BY 4.0.</li>
           </ul>
-          <p>De productlijst van de checker is beschikbaar onder dezelfde licentie: <a href="{INDEX_FILE}">download de gegevens</a> (JSON), lees de <a href="/data/LICENSE.txt">licentietekst</a> (Engels), of bekijk het <a href="https://github.com/The-Dev-Spot/basketvitality-website/blob/main/scripts/build_index.py">script dat de lijst bouwt</a>.</p>
+          <p>De productlijst van de checker is beschikbaar onder dezelfde licentie: <a href="{INDEX_FILE}">download de gegevens</a> (JSON), lees de <a href="/data/LICENSE.txt">licentietekst</a> (Engels), of bekijk het <a href="https://github.com/The-Dev-Spot/basketvitality-website/blob/main/scripts/build_index.py">script dat de lijst bouwt</a>. De volledige productdatabase van de app en het script dat die maakt staan in onze <a href="https://github.com/The-Dev-Spot/basketvitality-seed">openbare seed-repository</a> (Engels).</p>
           <h2>Privacy</h2>
           <p>Kassabonnen scannen en scoren gebeurt op je telefoon, en je bonnen verlaten die nooit. Wat wél naar buiten gaat: de productdatabase, productfoto's, anonieme barcodes naar Open Food Facts, en Google Play voor abonnementen en beoordelingen. De checker op de website werkt in je browser. Lees het <a href="/privacy/">privacybeleid</a> (Engels).</p>
           <h2>Geen medische app</h2>
