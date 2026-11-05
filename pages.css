@@ -1,0 +1,84 @@
+/* Shared components for the checker and content pages. Loaded after roadmap.css. */
+.prose>*{max-width:68ch}
+.wrap.hero{padding-left:24px;padding-right:24px}
+.prose h2{margin-top:44px}
+.prose h2:first-child{margin-top:0}
+.prose ul,.prose ol{color:var(--ink-subtle);padding-left:22px;margin:0 0 18px}
+.prose li{margin:8px 0}
+.text-link{color:var(--forest)}
+.page-section{padding:56px 0;border-top:1px solid var(--outline)}
+.grade{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;border-radius:10px;font-family:var(--serif);font-size:1.5rem;line-height:1;color:#fff}
+.grade.small{width:28px;height:28px;border-radius:7px;font-family:var(--sans);font-size:.95rem;font-weight:500}
+.grade.a{background:var(--ns-a)}
+.grade.b{background:var(--ns-b);color:var(--ink)}
+.grade.c{background:var(--ns-c);color:#3A2E00}
+.grade.d{background:var(--ns-d);color:var(--ink)}
+.grade.e{background:#C9320B}
+.grade.none{background:var(--outline);color:var(--ink)}
+
+.checker{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px;align-items:start}
+.checker-form label{display:block;font-weight:500;margin-bottom:8px;color:var(--ink)}
+.checker-form textarea{display:block;width:100%;min-height:240px;padding:14px;border:1px solid var(--ink-subtle);border-radius:12px;background:#fff;color:var(--ink);font:inherit;resize:vertical}
+.checker-form textarea:focus-visible,.checker-form button:focus-visible,.choice:focus-visible,.link-button:focus-visible,.btn-quiet:focus-visible{outline:3px solid var(--gold-deep);outline-offset:3px}
+.checker-actions{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}
+.checker-actions button{min-height:48px;padding:0 22px;border-radius:12px;font:inherit;font-weight:500;cursor:pointer}
+#check{border:0;background:var(--emerald);color:#fff}
+#check:hover{background:var(--forest)}
+#check:disabled{opacity:.6;cursor:progress}
+#example{border:1px solid var(--outline);background:var(--raised);color:var(--ink)}
+#status:empty{display:none}
+.privacy-note{font-size:.92rem}
+#summary{background:#fff;border:1px solid var(--outline);border-radius:16px;padding:22px 24px;margin-bottom:16px}
+#summary:focus{outline:none}
+#summary h2{font-size:1.7rem;margin:0 0 8px}
+#summary p{margin:0;font-size:.97rem}
+#results{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.result{display:flex;gap:14px;align-items:flex-start;background:var(--raised);border:1px solid var(--outline);border-radius:12px;padding:14px}
+.result-body{min-width:0;flex:1}
+.result-body p{margin:0 0 6px}
+.result-title{color:var(--ink);font-weight:500;overflow-wrap:anywhere}
+.result .fine{font-size:.9rem}
+.warn{color:var(--clay-text);font-size:.9rem}
+.choices{margin:8px 0}
+.choices summary{cursor:pointer;min-height:32px;color:var(--forest);font-size:.95rem}
+.choices ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.choice{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:6px 10px;border:1px solid var(--outline);border-radius:8px;background:#fff;color:var(--ink);font:inherit;font-size:.93rem;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+.choice:hover{border-color:var(--emerald)}
+.online{margin-top:10px}
+.btn-quiet{min-height:44px;padding:0 16px;border:1px solid var(--emerald);border-radius:10px;background:transparent;color:var(--forest);font:inherit;font-size:.93rem;cursor:pointer;margin-bottom:8px}
+.link-button{min-height:44px;padding:0;border:0;background:none;color:var(--forest);font:inherit;font-size:.9rem;text-decoration:underline;cursor:pointer}
+.no-js{background:var(--raised);border:1px solid var(--outline);border-radius:12px;padding:16px 18px}
+
+.score-table{width:100%;border-collapse:collapse;margin:8px 0 12px}
+.score-table caption{text-align:left;color:var(--ink-subtle);font-size:.92rem;padding-bottom:10px}
+.score-table thead th{white-space:nowrap}
+.score-table th,.score-table td{padding:8px 10px 8px 0;border-top:1px solid var(--outline);vertical-align:middle;text-align:left;font-weight:400}
+.score-table .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink)}
+.score-table .bar-cell{width:100%;min-width:90px}
+.bar{display:block;height:14px;min-width:2px;border-radius:0 4px 4px 0;background:var(--emerald)}
+.values{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.values div{background:var(--raised);border:1px solid var(--outline);border-radius:12px;padding:14px 16px}
+.values dt{font-size:.88rem;color:var(--ink-subtle)}
+.values dd{margin:0;color:var(--ink);font-weight:500}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin:24px 0;padding:0;list-style:none}
+.card-grid a{display:block;height:100%;background:#fff;border:1px solid var(--outline);border-radius:16px;padding:22px;text-decoration:none;color:inherit}
+.card-grid a:hover{border-color:var(--emerald)}
+.card-grid h3{margin:0 0 8px}
+.card-grid p{margin:0;font-size:.97rem}
+.compare{width:100%;min-width:520px;border-collapse:collapse}
+.compare th,.compare td{padding:12px 12px 12px 0;border-top:1px solid var(--outline);text-align:left;vertical-align:top;font-weight:400;color:var(--ink-subtle)}
+.compare thead th{font-weight:500;color:var(--ink);border-top:0}
+.compare tbody th{color:var(--ink)}
+.table-scroll{overflow-x:auto}
+.cta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px 32px}
+.cta p{max-width:58ch;margin:0}
+.cta h2{margin-bottom:10px}
+.footer .legal{margin:8px 0}
+
+@media (max-width:760px){
+  .checker{grid-template-columns:minmax(0,1fr);gap:28px}
+  .checker-form textarea{min-height:180px}
+  h1{font-size:clamp(2.3rem,10vw,3rem)}
+}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.not-listed{margin:12px 0 4px}

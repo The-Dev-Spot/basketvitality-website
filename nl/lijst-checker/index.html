@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gratis boodschappenlijst-checker: Nutri-Scores voor je boodschappen — Basket Vitality</title>
+    <meta name="description" content="Typ je boodschappenlijst en zie de Nutri-Score van elk product. Gratis, zonder account, en je lijst blijft in je browser.">
+    <link rel="canonical" href="https://basketvitality.com/nl/lijst-checker/">
+    <link rel="alternate" hreflang="en" href="https://basketvitality.com/checker/">
+    <link rel="alternate" hreflang="nl" href="https://basketvitality.com/nl/lijst-checker/">
+    <link rel="alternate" hreflang="x-default" href="https://basketvitality.com/checker/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Basket Vitality">
+    <meta property="og:locale" content="nl_NL">
+    <meta property="og:url" content="https://basketvitality.com/nl/lijst-checker/">
+    <meta property="og:title" content="Gratis boodschappenlijst-checker: Nutri-Scores voor je boodschappen — Basket Vitality">
+    <meta property="og:description" content="Typ je boodschappenlijst en zie de Nutri-Score van elk product. Gratis, zonder account, en je lijst blijft in je browser.">
+    <meta property="og:image" content="https://basketvitality.com/og-image.png">
+    <meta property="og:image:alt" content="Basket Vitality">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gratis boodschappenlijst-checker: Nutri-Scores voor je boodschappen — Basket Vitality">
+    <meta name="twitter:description" content="Typ je boodschappenlijst en zie de Nutri-Score van elk product. Gratis, zonder account, en je lijst blijft in je browser.">
+    <meta name="twitter:image" content="https://basketvitality.com/og-image.png">
+    <meta name="theme-color" content="#F6F2DE">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="/roadmap.css">
+    <link rel="stylesheet" href="/pages.css">
+    <script type="module" src="/checker.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Naar de inhoud</a>
+    <header class="wrap">
+      <nav class="primary-nav" aria-label="Hoofdnavigatie">
+        <a class="wordmark" href="/nl/">Basket <em>Vitality</em></a>
+        <div class="site-links">
+          <a href="/nl/lijst-checker/" aria-current="page">Lijst-checker</a>
+          <a href="/nl/scores/">Voedingsscores</a>
+          <a href="/nl/kassabon-scannen/">Kassabon scannen</a>
+          <a href="/nl/roadmap/">Roadmap</a>
+        </div>
+        <div class="langswitch">
+          <a href="/checker/" lang="en" hreflang="en">EN</a>
+          <a href="/nl/lijst-checker/" lang="nl" hreflang="nl" aria-current="true">NL</a>
+        </div>
+      </nav>
+    </header>
+    <main id="main">
+      <div class="wrap hero">
+        <p class="eyebrow">Gratis boodschappenlijst-checker</p>
+        <h1>Check je lijst <em>voordat je gaat winkelen.</em></h1>
+        <p class="lead">Typ één product per regel en zie de Nutri-Score. Geen account, en je lijst blijft in je browser.</p>
+        
+      </div>
+      <section>
+        <div class="wrap checker">
+          <div class="checker-form">
+            <label for="list">Je boodschappenlijst</label>
+            <textarea id="list" rows="9" maxlength="2000" spellcheck="false" autocomplete="off" placeholder="havermout
+halfvolle melk
+pindakaas"></textarea>
+            <div class="checker-actions">
+              <button id="check" type="button">Check mijn lijst</button>
+              <button id="example" type="button" data-list="havermout|halfvolle melk|pindakaas|hagelslag|appelsap|kipfilet">Probeer een voorbeeld</button>
+            </div>
+            <p class="privacy-note">Je lijst wordt nergens opgeslagen of naartoe gestuurd. <strong>Online zoeken</strong> verschijnt als dat nodig is, en stuurt alleen de regel waarop je tikt.</p>
+            <noscript><p class="no-js">Deze checker heeft JavaScript nodig. Dat draait alleen op deze pagina, en alleen vanaf onze eigen site.</p></noscript>
+          </div>
+          <div aria-live="polite">
+            <p id="status"></p>
+            <div id="summary" tabindex="-1" hidden></div>
+            <ul id="results"></ul>
+          </div>
+        </div>
+      </section>
+      <section class="tint">
+        <div class="wrap prose">
+          <h2>Zo werkt het</h2>
+          <p>De pagina downloadt een lijst van 18.966 producten met een Nutri-Score en doorzoekt die in je browser. Zoek op productnaam en voeg een merk toe om preciezer te zoeken.</p>
+          <h3>Waarom sommige regels een bereik tonen</h3>
+          <p>"Kipfilet" is niet één product. Als gevonden producten verschillend scoren, toont de checker het bereik en laat hij je kiezen, in plaats van één score te verzinnen.</p>
+          <h3>Wat de checker niet kan</h3>
+          <p>Hij kent alleen producten met een Nutri-Score in onze gegevens, en die gegevens komen van vrijwilligers, dus sommige records kloppen niet of zijn verouderd. We waarschuwen als de cijfers van een record niet lijken te kloppen. De verpakking heeft altijd het laatste woord. Lees <a href="/nl/methode/">hoe de scores werken</a>.</p>
+        </div>
+      </section>
+      <section class="tint">
+        <div class="wrap cta">
+          <div>
+            <h2>Een lijst vertelt niet wat de boodschappen kostten. <em>Je kassabon wel.</em></h2>
+            <p>Scan een kassabon en zie wat het kostte ten opzichte van je budget en hoe het scoorde. Scannen is gratis, zonder account.</p>
+            <p class="availability">Android · Op Google Play in Nederland en België.</p>
+          </div>
+          <a class="btn" href="https://play.google.com/store/apps/details?id=com.thedevspot.basketvitality">Download Basket Vitality gratis</a>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="wrap">
+        <p>Basket Vitality · The Dev Spot</p>
+        <nav class="footer-links" aria-label="Voettekst">
+          <a href="/nl/">Home</a>
+          <a href="/nl/lijst-checker/">Lijst-checker</a>
+          <a href="/nl/scores/">Voedingsscores</a>
+          <a href="/nl/kassabon-scannen/">Kassabon scannen</a>
+          <a href="/nl/methode/">Methode</a>
+          <a href="/nl/voor-professionals/">Voor professionals</a>
+          <a href="/nl/roadmap/">Roadmap</a>
+          <a href="/privacy/">Privacybeleid</a>
+        </nav>
+        <p class="legal">Productgegevens © <a href="https://world.openfoodfacts.org">Open Food Facts</a>-bijdragers, Open Database License (ODbL) v1.0. Based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources. Milieugegevens: AGRIBALYSE® (ADEME), CC-BY 4.0.</p>
+        <p class="legal">Basket Vitality geeft je informatie, geen medisch of financieel advies. Niet verbonden aan of goedgekeurd door een supermarkt of merk.</p>
+        <p class="legal">The Dev Spot · Westerstraat 10 UNIT G4118, 3016 DH Rotterdam<br>KvK 42149955 · <a href="mailto:privacy@basketvitality.com">privacy@basketvitality.com</a><br>Btw-id NL005535532B67<br>Genoemde prijzen zijn inclusief btw. Betaling en facturatie lopen via Google Play.</p>
+        <p class="copyright">© 2026 The Dev Spot.</p>
+      </div>
+    </footer>
+  </body>
+</html>
