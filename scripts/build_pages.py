@@ -54,7 +54,16 @@ UI = {
         "availability": "Android · On Google Play in the Netherlands and Belgium.",
         "attribution": 'Product data © <a href="https://world.openfoodfacts.org">Open Food Facts</a> contributors, Open Database License (ODbL) v1.0. Based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources. Environmental data: AGRIBALYSE® (ADEME), CC-BY 4.0.',
         "advice": "Basket Vitality gives you information, not medical or financial advice. Not affiliated with or endorsed by any supermarket or brand. Nutri-Score is a trademark of Santé publique France, which is not affiliated with Basket Vitality.",
-        "business": 'The Dev Spot · Westerstraat 10 UNIT G4118, 3016 DH Rotterdam, Netherlands<br>Chamber of Commerce (KVK) 42149955 · <a href="mailto:privacy@basketvitality.com">privacy@basketvitality.com</a><br>VAT NL005535532B67<br>Prices shown include VAT. Payment and billing are handled by Google Play.',
+        # Dutch law requires name, address, contact details, KVK and VAT numbers to be directly
+        # accessible, which is why they appear in the footer of every page. The VAT number is the
+        # btw-identificatienummer. Never publish the omzetbelastingnummer: for an eenmanszaak
+        # it is derived from the owner's BSN.
+        "business": 'The Dev Spot, Westerstraat 10 UNIT G4118, 3016 DH Rotterdam, Netherlands<br>Chamber of Commerce (KVK) 42149955<br>VAT NL005535532B67<br><a href="mailto:privacy@basketvitality.com">privacy@basketvitality.com</a>',
+        "prices": "Prices shown include VAT. Payment and billing are handled by Google Play.",
+        "trade_name": "© 2026 The Dev Spot. Basket Vitality is a registered trade name.",
+        "promise": "Your receipt: what it cost, and what it scored.",
+        "where": "For Android, in the Netherlands and Belgium.",
+        "use": "Use it", "about": "About the app", "badge": "Get it on Google Play",
     },
     "nl": {
         "home": "/nl/", "roadmap": "/nl/roadmap/", "skip": "Naar de inhoud", "nav": "Hoofdnavigatie",
@@ -65,7 +74,12 @@ UI = {
         "availability": "Android · Op Google Play in Nederland en België.",
         "attribution": 'Productgegevens © <a href="https://world.openfoodfacts.org">Open Food Facts</a>-bijdragers, Open Database License (ODbL) v1.0. Based on data from NEVO online version 2025/9.0, RIVM, Bilthoven and other data sources. Milieugegevens: AGRIBALYSE® (ADEME), CC-BY 4.0.',
         "advice": "Basket Vitality geeft je informatie, geen medisch of financieel advies. Niet verbonden aan of goedgekeurd door een supermarkt of merk. Nutri-Score is een merk van Santé publique France, dat niet verbonden is aan Basket Vitality.",
-        "business": 'The Dev Spot · Westerstraat 10 UNIT G4118, 3016 DH Rotterdam<br>KvK 42149955 · <a href="mailto:privacy@basketvitality.com">privacy@basketvitality.com</a><br>Btw-id NL005535532B67<br>Genoemde prijzen zijn inclusief btw. Betaling en facturatie lopen via Google Play.',
+        "business": 'The Dev Spot, Westerstraat 10 UNIT G4118, 3016 DH Rotterdam<br>KvK 42149955<br>Btw-id NL005535532B67<br><a href="mailto:privacy@basketvitality.com">privacy@basketvitality.com</a>',
+        "prices": "Genoemde prijzen zijn inclusief btw. Betaling en facturatie lopen via Google Play.",
+        "trade_name": "© 2026 The Dev Spot. Basket Vitality is een geregistreerde handelsnaam.",
+        "promise": "Je kassabon: wat het kostte, en wat het scoorde.",
+        "where": "Voor Android, in Nederland en België.",
+        "use": "Gebruik het", "about": "Over de app", "badge": "Ontdek het op Google Play",
     },
 }
 
@@ -88,6 +102,70 @@ def decimal(value, lang):
 
 def path(key, lang):
     return {**PATHS, **HIDDEN}[key][0 if lang == "en" else 1]
+
+
+def footer_html(lang, note=""):
+    """The footer on every page. `note` is an extra legal line for one page."""
+    ui = UI[lang]
+    link = lambda href, label: f'<li><a href="{href}">{label}</a></li>'
+    use = "".join(link(path(key, lang), ui[key]) for key in ("checker", "scores", "receipt", "budget"))
+    about = "".join([
+        link(path("methodology", lang), ui["methodology"]),
+        link(path("professionals", lang), ui["professionals"]),
+        link(ui["roadmap"], ui["roadmap_label"]),
+        link("/privacy/", ui["privacy"]),
+    ])
+    extra = f"<p>{note}</p>" if note else ""
+    return f"""<footer class="site-footer">
+      <span class="sf-weave" aria-hidden="true"></span>
+      <div class="sf-inner">
+        <div class="sf-top">
+          <div class="sf-brand">
+            <a class="sf-wordmark" href="{ui['home']}">Basket <em>Vitality</em></a>
+            <p class="sf-promise">{ui['promise']}</p>
+            <a class="sf-badge sf-badge-{lang}" href="{PLAY}"><img src="/play-badge-{lang}.png" alt="{ui['badge']}" width="168" height="65"></a>
+            <p class="sf-where">{ui['where']}</p>
+          </div>
+          <nav aria-label="{ui['footer']}: {ui['use']}">
+            <p class="sf-heading">{ui['use']}</p>
+            <ul class="sf-links">{use}</ul>
+          </nav>
+          <nav aria-label="{ui['footer']}: {ui['about']}">
+            <p class="sf-heading">{ui['about']}</p>
+            <ul class="sf-links">{about}</ul>
+          </nav>
+        </div>
+        <div class="sf-legal">
+          <div>
+            {extra}<p>{ui['advice']}</p>
+            <p>{ui['attribution']}</p>
+          </div>
+          <div>
+            <p>{ui['business']}</p>
+            <p>{ui['prices']}</p>
+            <p>{ui['trade_name']}</p>
+          </div>
+        </div>
+      </div>
+    </footer>"""
+
+
+def update_hand_written_pages():
+    """Give the pages that aren't generated here the same footer and stylesheet."""
+    examples = {
+        "en": "The receipt, swaps and report on this page are examples.",
+        "nl": "De bon, de swaps en het rapport op deze pagina zijn voorbeelden.",
+    }
+    for file, lang, note in (("index.html", "en", examples["en"]), ("nl/index.html", "nl", examples["nl"]),
+                             ("roadmap/index.html", "en", ""), ("nl/roadmap/index.html", "nl", ""),
+                             ("privacy/index.html", "en", "")):
+        target = ROOT / file
+        source = target.read_text(encoding="utf-8")
+        source, count = re.subn(r"<footer\b.*?</footer>", lambda _: footer_html(lang, note), source, flags=re.S)
+        assert count == 1, file
+        if "/footer.css" not in source:
+            source = source.replace("</head>", '<link rel="stylesheet" href="/footer.css">\n</head>', 1)
+        target.write_text(source, encoding="utf-8")
 
 
 def plain(markup):
@@ -172,7 +250,8 @@ def page(key, lang, title, description, body, scripted=False, schema=(), crumb=N
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="/roadmap.css">
-    <link rel="stylesheet" href="/pages.css">{script}{data}
+    <link rel="stylesheet" href="/pages.css">
+    <link rel="stylesheet" href="/footer.css">{script}{data}
   </head>
   <body>
     <a class="skip-link" href="#main">{ui['skip']}</a>
@@ -194,26 +273,7 @@ def page(key, lang, title, description, body, scripted=False, schema=(), crumb=N
     <main id="main">
 {crumb_nav}{body}
     </main>
-    <footer class="footer">
-      <div class="wrap">
-        <p>Basket Vitality · The Dev Spot</p>
-        <nav class="footer-links" aria-label="{ui['footer']}">
-          <a href="{ui['home']}">Home</a>
-          <a href="{path('checker', lang)}">{ui['checker']}</a>
-          <a href="{path('scores', lang)}">{ui['scores']}</a>
-          <a href="{path('receipt', lang)}">{ui['receipt']}</a>
-          <a href="{path('budget', lang)}">{ui['budget']}</a>
-          <a href="{path('methodology', lang)}">{ui['methodology']}</a>
-          <a href="{path('professionals', lang)}">{ui['professionals']}</a>
-          <a href="{ui['roadmap']}">{ui['roadmap_label']}</a>
-          <a href="/privacy/">{ui['privacy']}</a>
-        </nav>
-        <p class="legal">{ui['attribution']}</p>
-        <p class="legal">{ui['advice']}</p>
-        <p class="legal">{ui['business']}</p>
-        <p class="copyright">© 2026 The Dev Spot.</p>
-      </div>
-    </footer>
+    {footer_html(lang)}
   </body>
 </html>
 """
@@ -863,6 +923,7 @@ def main():
         write(path("budget", lang), budget(lang))
         write(path("professionals", lang), professionals(lang))
         (ROOT / ("404.html" if lang == "en" else "nl/404.html")).write_text(not_found(lang), encoding="utf-8")
+    update_hand_written_pages()
     write_sitemap()
     print(json.dumps(stats))
 
