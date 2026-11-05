@@ -12,3 +12,5 @@ node_modules
 .wrangler
 .dev.vars
 .gitignore
+.github
+SECURITY.md
